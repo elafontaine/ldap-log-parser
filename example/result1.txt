@@ -1,0 +1,54 @@
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': None,
+            'connection': 1744570,
+            'operation': None,
+            'event': 'TLS established tls_ssf=128 ssf=128',
+        }
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': None,
+            'connection': 1744570,
+            'operation': 0,
+            'event': 'BIND dn="cn=jdoe,ou=people,dc=example,dc=com" method=128',
+        }
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': None,
+            'connection': 1744570,
+            'operation': 0,
+            'event': 'BIND dn="cn=jdoe,ou=people,dc=example,dc=com" mech=SIMPLE ssf=0',
+        }
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': None,
+            'connection': 1744570,
+            'operation': 0,
+            'event': 'RESULT tag=97 err=0 text=',
+        }
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': None,
+            'connection': 1744570,
+            'operation': 1,
+            'event': 'UNBIND',
+        }
+
+        {
+            'date': Sep 21 03:46:04,
+            'server': ldap-server,
+            'fd': 137,
+            'connection': 1744570,
+            'operation': None,
+            'event': 'closed',
+        }

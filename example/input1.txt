@@ -1,0 +1,6 @@
+Sep 21 03:46:04 ldap-server conn=1744570 fd=137 TLS established tls_ssf=128 ssf=128
+Sep 21 03:46:04 ldap-server conn=1744570 op=0 BIND dn="cn=jdoe,ou=people,dc=example,dc=com" method=128
+Sep 21 03:46:04 ldap-server conn=1744570 op=0 BIND dn="cn=jdoe,ou=people,dc=example,dc=com" mech=SIMPLE ssf=0
+Sep 21 03:46:04 ldap-server conn=1744570 op=0 RESULT tag=97 err=0 text=
+Sep 21 03:46:04 ldap-server conn=1744570 op=1 UNBIND
+Sep 21 03:46:04 ldap-server conn=1744570 fd=137 closed

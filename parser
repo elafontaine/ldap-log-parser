@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+import re
+import argparse
+import time
+
+
+def parser_data(data):
+	"""
+	Parser input data into JSON format
+	:param data: data to be parsered
+	:return: data list in JSON format
+	"""
+
+	matchLine = r"^^(?P<date>[A-Z]{1}\w{2}\s[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}) (?P<server>.+) conn=(?P<connection>[0-9]+) (op=(?P<operation>[0-9]+)|fd=(?P<fd>[0-9]+)) (?P<event>[A-Z].+)|(?P<closed>^.*closed)"
+	matchClose = r"^(?P<date>[A-Z]{1}\w{2}\s[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}) (?P<server>.+) conn=(?P<connection>[0-9]+) fd=(?P<fd>[0-9]+)"
+
+	events = []
+	for line in data:
+		match = re.search(matchLine, line)
+		if match:
+			if match.group('closed') is None:
+				date = match.group('date')
+				server = match.group('server')
+				connection = match.group('connection')
+				operation = match.group('operation')
+				fd = match.group('fd')
+				event = match.group('event')
+
+				eventList = {
+					'date': date,
+					'server': server,
+					'connection': connection,
+					'operation': operation,
+					'event': event,
+				}
+			else:
+				match_close = re.search(matchClose, match.group('closed'))
+				date = match_close.group('date')
+				server = match_close.group('server')
+				connection = match_close.group('connection')
+				fd = match_close.group('fd')
+				eventList = {
+					'date': date,
+					'server': server,
+					'fd': fd,
+					'connection': connection,
+					'event': 'closed',
+				}
+
+			events.append(eventList)
+	return events
+
+
+def json_data(events):
+	"""
+	Print events as JSON format
+	:param events: list of events
+	:return: None
+	"""
+	for data in events:
+		date = data['date']
+		server = data['server']
+		fd = data['fd'] if 'fd' in data.keys() else None
+		connection = data['connection']
+		operation = data['operation'] if 'operation' in data.keys() else None
+		event = data['event']
+		print("""
+        {
+            'date': %s,
+            'server': %s,
+            'fd': %s,
+            'connection': %s,
+            'operation': %s,
+            'event': '%s',
+        }""" % (date, server, fd, connection, operation, event))
+
+
+def get_data(file):
+	"""
+	Read data from file
+	:param file: file to read
+	:return: file content
+	"""
+	fobj = open(file, 'r')
+	fcont = fobj.readlines()
+	fobj.close()
+	return fcont
+
+
+def follow(file):
+	"""
+	To not stop when end of file is reached, but rather to wait for additional data to be appended to the input
+	:param file: file to follow up
+	:return: None
+	"""
+	fobj = open(file, 'r')
+	fobj.seek(0, 2)  # Move file pointer to end of file
+	lastpos = fobj.tell() # Get last position
+	fobj.close()
+	try:
+		while True:
+			fobj = open(file, 'r')
+			fobj.seek(lastpos, 0)
+			fcont = fobj.readlines()
+			if fcont:
+				data = parser_data(fcont)
+				json_data(data)
+				lastpos = fobj.tell()
+			else:
+				time.sleep(10)
+	except KeyboardInterrupt:
+		fobj.close()
+		print("")
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='LDAP log parser')
+	parser.add_argument('-i', action='store', dest='logfile', help="Input LDAP log file.", default='./slapd.log')
+	parser.add_argument('-f', action='store_true', dest='mode', help="Follow up log file. Ctrl+C to exit.")
+	parser.add_argument('-v', action='version', version='%(prog)s 1.0')
+	args = parser.parse_args()
+
+	log_file = args.logfile
+	run_mode = args.mode
+
+	log_content = get_data(log_file)
+	data = parser_data(log_content)
+	json_data(data)
+
+	if run_mode:
+		follow(log_file)
